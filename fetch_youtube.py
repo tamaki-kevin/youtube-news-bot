@@ -39,14 +39,18 @@ def fetch_videos(channel_id, label):
             published_at = snippet.get("publishedAt", "")
             video_id = item["id"]["videoId"]
 
-            if any(kw in title.lower() for kw in ["live", "ライブ"]) and is_recent_video(published_at):
-                videos.append({
-                    "title": title,
-                    "video_id": video_id,
-                    "thumbnail": snippet["thumbnails"]["medium"]["url"],
-                    "published_at": published_at,
-                    "channel": label
-                })
+            # キーワード判定＋FNN特別ルール
+            keywords = ["live", "ライブ", "関連ニュースまとめ"]
+            title_lc = title.lower()
+            if any(kw in title_lc for kw in keywords) or label == "FNN":
+                if is_recent_video(published_at):
+                    videos.append({
+                        "title": title,
+                        "video_id": video_id,
+                        "thumbnail": snippet["thumbnails"]["medium"]["url"],
+                        "published_at": published_at,
+                        "channel": label
+                    })
     return videos
 
 def post_to_wordpress(video):
